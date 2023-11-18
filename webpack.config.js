@@ -1,7 +1,15 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import { fileURLToPath } from 'url';
+import path, { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default {
   mode: process.env.NODE_ENV || 'development',
+  entry: {
+    main: path.resolve(__dirname, './src/index.js'),
+  },
   module: {
     rules: [
       {
@@ -31,10 +39,14 @@ export default {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'template.html',
+      title: 'webpack Boilerplate',
+      template: path.resolve(__dirname, 'index.html'),
+      filename: 'index.html',
     }),
   ],
   output: {
+    path: path.resolve(__dirname, './dist'),
+    filename: '[name].bundle.js',
     clean: true,
   },
 };
