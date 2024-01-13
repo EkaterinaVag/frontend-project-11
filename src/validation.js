@@ -20,20 +20,21 @@ const validate = async (url, urlUniqueLinks) => new Promise((resolve, reject) =>
 export default () => {
   const state = {
     url: '',
-    error: '',
+    error: { message: '' },
     isValid: false,
     urlUniqueLinks: [],
   };
-
   const input = document.querySelector('input');
-  const watchedState = onChange(state, () => {
-    if (!watchedState.error) {
-      input.classList.remove('is-invalid');
+
+  const watchedState = onChange(state, (path, value) => {
+    if (path === 'error') {
+      if (!value.message) {
+        input.classList.remove('is-invalid');
+      } else {
+        input.classList.add('is-invalid');
+      }
       const feedbackElement = document.querySelector('.feedback');
-      feedbackElement.textContent = watchedState.error.message;
-    }
-    if (watchedState.error) {
-      input.classList.add('is-invalid');
+      feedbackElement.textContent = value.message;
     }
   });
 
@@ -42,14 +43,15 @@ export default () => {
     e.preventDefault();
     const { value } = input;
     watchedState.url = value;
-    const validateAnswer = validate(watchedState.url, watchedState.urlUniqueLinks);
-    watchedState.error = validateAnswer;
-
-    if (!watchedState.error) {
-      watchedState.isValid = true;
-      watchedState.urlUniqueLinks.push(value);
-      input.value = '';
-      input.focus();
-    }
+    validate(watchedState.url, watchedState.urlUniqueLinks)
+      .then(() => {
+        watchedState.isValid = true;
+        watchedState.urlUniqueLinks.push(value);
+        input.value = '';
+        input.focus();
+      })
+      .catch((error) => {
+        watchedState.error = error;
+      });
   });
 };
