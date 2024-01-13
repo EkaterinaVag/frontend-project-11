@@ -39,14 +39,12 @@ export default {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'webpack Boilerplate',
-      template: path.resolve(__dirname, './src/template.html'),
-      filename: 'index.html',
+      template: path.resolve(__dirname, './public/index.html'),
     }),
   ],
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: '[name].bundle.js',
+    filename: '[name].[contenthash].js',
     clean: true,
   },
 };
