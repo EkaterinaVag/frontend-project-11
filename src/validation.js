@@ -36,6 +36,10 @@ export default () => {
       const feedbackElement = document.querySelector('.feedback');
       feedbackElement.textContent = value.message;
     }
+    if (watchedState.isValid) {
+      input.value = '';
+      input.focus();
+    }
   });
 
   const form = document.querySelector('form');
@@ -47,8 +51,6 @@ export default () => {
       .then(() => {
         watchedState.isValid = true;
         watchedState.urlUniqueLinks.push(value);
-        input.value = '';
-        input.focus();
       })
       .catch((error) => {
         watchedState.error = error;
