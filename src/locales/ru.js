@@ -13,6 +13,8 @@ export default {
       invalidURLError: 'Ссылка должна быть валидным URL',
       rssExistsError: 'RSS уже существует',
       correctURL: 'RSS успешно загружен',
+      networkError: 'Ошибка сети',
+      invalidRSSResource: 'Ресурс не содержит валидный RSS',
     },
   },
 };
