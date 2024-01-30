@@ -1,7 +1,9 @@
 import i18next from 'i18next';
 import * as yup from 'yup';
+import axios from 'axios';
 import resources from './locales/index.js';
 import watch from './view.js';
+import parseData from './parser.js';
 
 export default async () => {
   const form = document.querySelector('form');
@@ -19,8 +21,11 @@ export default async () => {
   const state = {
     url: '',
     errors: { message: '' },
+    networkErrors: { message: '' },
     isValid: false,
     urlUniqueLinks: [],
+    posts: [],
+    feeds: [],
   };
 
   const watchedState = watch(i18n, state);
@@ -42,14 +47,27 @@ export default async () => {
     e.preventDefault();
     const { value } = input;
     watchedState.url = value;
-    try {
-      await validate(watchedState.url, watchedState.urlUniqueLinks);
-      watchedState.isValid = true;
-      watchedState.urlUniqueLinks.push(value);
-      watchedState.errors.message = '';
-    } catch (error) {
-      watchedState.isValid = false;
-      watchedState.errors.message = error.message;
-    }
+    const url = `https://allorigins.hexlet.app/get?url=${watchedState.url}`;
+
+    validate(watchedState.url, watchedState.urlUniqueLinks)
+      .then(() => {
+        axios.get(url)
+          .then((response) => response.data.contents)
+          .then((responseData) => {
+            const { feeds, posts } = parseData(responseData);
+            watchedState.feeds.push(feeds);
+            watchedState.posts.push(posts);
+            watchedState.isValid = true;
+            watchedState.urlUniqueLinks.push(value);
+            watchedState.errors.message = '';
+          })
+          .catch(() => {
+            watchedState.networkErrors.message = i18n.t('feedBackTexts.networkError');
+          });
+      })
+      .catch((error) => {
+        watchedState.isValid = false;
+        watchedState.errors.message = error.message;
+      });
   });
 };
