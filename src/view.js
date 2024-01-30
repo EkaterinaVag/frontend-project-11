@@ -37,12 +37,25 @@ export default (i18n, state) => {
     }
   };
 
+  // const renderNetworkError = (watchedState) => {
+  //   if (watchedState.networkErrors) {
+  //     const feedbackElement = document.querySelector('.feedback');
+  //     feedbackElement.textContent = watchedState.networkErrors.message;
+  //   }
+  // };
+
   const watchedState = onChange(state, (path) => {
-    if (path === 'errors.message') {
-      renderErrors(watchedState);
-    }
-    if (path === 'isValid') {
-      renderErrors(watchedState);
+    // eslint-disable-next-line default-case
+    switch (path) {
+      // case 'networkErrors.message':
+      //   renderNetworkError(watchedState);
+      //   break;
+      case 'errors.message':
+        renderErrors(watchedState);
+        break;
+      case 'isValid':
+        renderErrors(watchedState);
+        break;
     }
   });
 
