@@ -1,18 +1,23 @@
-import { DOMParser } from '@xmldom/xmldom';
-
-const parseData = (data) => {
+const parseData = (data, i18n) => {
   const feeds = [];
   const posts = [];
   const parser = new DOMParser();
-  const doc = parser.parseFromString(data, 'application/xml');
-  const items = doc.getElementsByTagName('item');
+  const doc = parser.parseFromString(data, 'text/xml');
+
+  const parsererrors = doc.querySelector('parsererror');
+
+  if (parsererrors !== null) {
+    throw new Error(i18n.t('feedBackTexts.invalidRSSResource'));
+  }
+
+  const items = doc.querySelectorAll('item');
   Array.from(items).forEach((item) => {
-    const postTitle = item.getElementsByTagName('title')[0].childNodes[0].nodeValue;
-    const postLink = item.getElementsByTagName('link')[0].childNodes[0].nodeValue;
+    const postTitle = item.querySelector('title').textContent;
+    const postLink = item.querySelector('link').textContent;
     posts.push({ title: postTitle, link: postLink });
   });
-  const feedTitle = doc.getElementsByTagName('title')[0].childNodes[0].nodeValue;
-  const feedDescription = doc.getElementsByTagName('description')[0].childNodes[0].nodeValue;
+  const feedTitle = doc.querySelector('title').textContent;
+  const feedDescription = doc.querySelector('description').textContent;
   feeds.push({ title: feedTitle, description: feedDescription });
 
   return { feeds, posts };
