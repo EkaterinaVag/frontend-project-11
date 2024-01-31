@@ -37,24 +37,55 @@ export default (i18n, state) => {
     }
   };
 
-  // const renderNetworkError = (watchedState) => {
-  //   if (watchedState.networkErrors) {
-  //     const feedbackElement = document.querySelector('.feedback');
-  //     feedbackElement.textContent = watchedState.networkErrors.message;
-  //   }
-  // };
+  const renderPosts = (watchedState) => {
+    const postsElement = document.querySelector('.posts');
+    watchedState.posts.forEach(({ title, link }) => {
+      const a = document.createElement('a');
+      a.textContent = title;
+      a.setAttribute('href', link);
+      a.classList.add('link-primary');
+      const div = document.createElement('div');
+      div.append(a);
+      postsElement.append(div);
+    });
+  };
+
+  const renderFeeds = (watchedState) => {
+    const feedsElement = document.querySelector('.feeds');
+    watchedState.feeds.forEach(({ title, description }) => {
+      const div = document.createElement('div');
+      const pTitle = document.createElement('p');
+      pTitle.textContent = title;
+      const pDescription = document.createElement('p');
+      pDescription.textContent = description;
+      div.append(pTitle);
+      div.append(pDescription);
+      feedsElement.append(div);
+    });
+  };
+
+  const renderNetworkError = (watchedState) => {
+    const feedbackElement = document.querySelector('.feedback');
+    feedbackElement.textContent = watchedState.networkErrors.message;
+  };
 
   const watchedState = onChange(state, (path) => {
     // eslint-disable-next-line default-case
     switch (path) {
-      // case 'networkErrors.message':
-      //   renderNetworkError(watchedState);
-      //   break;
+      case 'networkErrors.message':
+        renderNetworkError(watchedState);
+        break;
       case 'errors.message':
         renderErrors(watchedState);
         break;
       case 'isValid':
         renderErrors(watchedState);
+        break;
+      case 'posts':
+        renderPosts(watchedState);
+        break;
+      case 'feeds':
+        renderFeeds(watchedState);
         break;
     }
   });
