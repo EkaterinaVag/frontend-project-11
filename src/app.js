@@ -31,7 +31,9 @@ export default async () => {
   const watchedState = watch(i18n, state);
 
   const schema = yup.object().shape({
-    url: yup.string().url(i18n.t('feedBackTexts.invalidURLError')).required(),
+    url: yup.string()
+      .url(i18n.t('feedBackTexts.invalidURLError'))
+      .required(),
   });
 
   const validate = (url, urlUniqueLinks) => schema.validate({ url })
@@ -50,24 +52,24 @@ export default async () => {
     const url = `https://allorigins.hexlet.app/get?url=${watchedState.url}`;
 
     validate(watchedState.url, watchedState.urlUniqueLinks)
-      .then(() => {
-        axios.get(url)
-          .then((response) => response.data.contents)
-          .then((responseData) => {
-            const { feeds, posts } = parseData(responseData);
-            watchedState.feeds.push(feeds);
-            watchedState.posts.push(posts);
-            watchedState.isValid = true;
-            watchedState.urlUniqueLinks.push(value);
-            watchedState.errors.message = '';
-          })
-          .catch(() => {
-            watchedState.networkErrors.message = i18n.t('feedBackTexts.networkError');
-          });
+      .then(() => axios.get(url))
+      .then((response) => {
+        const responseData = response.data.contents;
+        const { feeds, posts } = parseData(responseData, i18n);
+        watchedState.feeds.push(feeds);
+        watchedState.posts.push(posts);
+        watchedState.isValid = true;
+        watchedState.urlUniqueLinks.push(value);
+        watchedState.errors.message = '';
+        watchedState.networkErrors.message = '';
       })
       .catch((error) => {
         watchedState.isValid = false;
-        watchedState.errors.message = error.message;
+        if (error.message === 'Network Error') {
+          watchedState.networkErrors.message = i18n.t('feedBackTexts.networkError');
+        } else {
+          watchedState.errors.message = error.message;
+        }
       });
   });
 };
