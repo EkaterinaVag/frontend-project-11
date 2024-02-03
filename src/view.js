@@ -2,20 +2,21 @@ import onChange from 'on-change';
 
 export default (i18n, state) => {
   const renderFormTexts = () => {
-    const readMore = document.querySelector('.full-article');
-    readMore.textContent = i18n.t('interfaceTexts.readMore');
-    const closeModal = document.querySelector('button[data-bs-dismiss="modal"]');
-    closeModal.textContent = i18n.t('interfaceTexts.closeModal');
-    const rssAggregatorTitle = document.querySelector('h1.display-3');
-    rssAggregatorTitle.textContent = i18n.t('interfaceTexts.rssAggregatorTitle');
-    const rssAggregatorDescription = document.querySelector('p.lead');
-    rssAggregatorDescription.textContent = i18n.t('interfaceTexts.rssAggregatorDescription');
-    const rssFormPlaceholder = document.querySelector('label[for="url-input"]');
-    rssFormPlaceholder.textContent = i18n.t('interfaceTexts.rssFormPlaceholder');
-    const rssFormButton = document.querySelector('button[aria-label="add"]');
-    rssFormButton.textContent = i18n.t('interfaceTexts.rssFormButton');
-    const rssFormExample = document.querySelector('p.mt-2.mb-0.text-secondary');
-    rssFormExample.textContent = i18n.t('interfaceTexts.rssFormExample');
+    const staticTextElements = {
+      readMore: document.querySelector('.full-article'),
+      closeModal: document.querySelector('button[data-bs-dismiss="modal"]'),
+      rssAggregatorTitle: document.querySelector('h1.display-3'),
+      rssAggregatorDescription: document.querySelector('p.lead'),
+      rssFormPlaceholder: document.querySelector('label[for="url-input"]'),
+      rssFormButton: document.querySelector('button[aria-label="add"]'),
+      rssFormExample: document.querySelector('p.mt-2.mb-0.text-secondary'),
+    };
+
+    const arrayOfElements = Object.entries(staticTextElements);
+    arrayOfElements.forEach(([key, value]) => {
+      const element = value;
+      element.textContent = i18n.t(`interfaceTexts.${key}`);
+    });
   };
 
   const renderErrors = (watchedState) => {
@@ -31,9 +32,9 @@ export default (i18n, state) => {
       input.value = '';
       input.focus();
     } else {
-      feedbackElement.textContent = watchedState.errors.message;
       feedbackElement.classList.add('text-danger');
       input.classList.add('is-invalid');
+      feedbackElement.textContent = i18n.t(watchedState.errors.message);
     }
   };
 
@@ -66,7 +67,7 @@ export default (i18n, state) => {
 
   const renderNetworkError = (watchedState) => {
     const feedbackElement = document.querySelector('.feedback');
-    feedbackElement.textContent = watchedState.networkErrors.message;
+    feedbackElement.textContent = i18n.t(watchedState.networkErrors.message);
   };
 
   const watchedState = onChange(state, (path) => {
