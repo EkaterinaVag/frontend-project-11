@@ -30,30 +30,39 @@ export default async () => {
 
   const watchedState = watch(i18n, state);
 
-  const schema = yup.object().shape({
-    url: yup.string()
-      .url(i18n.t('feedBackTexts.invalidURLError'))
-      .required(),
+  yup.setLocale({
+    mixed: {
+      url: () => ({ key: 'feedBackTexts.invalidURLError' }),
+      notOneOf: () => ({ key: 'feedBackTexts.rssExistsError' }),
+    },
   });
 
-  const validate = (url, urlUniqueLinks) => schema.validate({ url })
-    .then(() => {
-      if (urlUniqueLinks.includes(url)) {
-        throw new Error(i18n.t('feedBackTexts.rssExistsError'));
-      } else {
-        return '';
-      }
+  const validate = (url, urlUniqueLinks) => {
+    const schema = yup.object().shape({
+      url: yup.string()
+        .url('feedBackTexts.invalidURLError')
+        .notOneOf(urlUniqueLinks, 'feedBackTexts.rssExistsError')
+        .required(),
     });
+    return schema.validate({ url });
+  };
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const { value } = input;
     watchedState.url = value;
-    const url = `https://allorigins.hexlet.app/get?url=${watchedState.url}`;
+    const allOriginsProxyUrl = 'https://allorigins.hexlet.app/get?url=';
+    const url = `${allOriginsProxyUrl}${watchedState.url}`;
 
     validate(watchedState.url, watchedState.urlUniqueLinks)
       .then(() => axios.get(url))
       .then((response) => {
+        // if (response.statusText !== 'OK') {
+        //   throw new Error('feedBackTexts.networkError');
+        // }
+        if (response.status < 200 && response.status > 300) {
+          throw new Error('feedBackTexts.networkError');
+        }
         const responseData = response.data.contents;
         const { feeds, posts } = parseData(responseData, i18n);
         watchedState.feeds.push(feeds);
@@ -65,11 +74,10 @@ export default async () => {
       })
       .catch((error) => {
         watchedState.isValid = false;
-        if (error.message === 'Network Error') {
-          watchedState.networkErrors.message = i18n.t('feedBackTexts.networkError');
-        } else {
-          watchedState.errors.message = error.message;
+        if (error.response) {
+          watchedState.networkErrors.message = 'errrrror!';
         }
+        watchedState.errors.message = error.message;
       });
   });
 };
