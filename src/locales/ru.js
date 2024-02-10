@@ -8,6 +8,10 @@ export default {
       rssFormPlaceholder: 'Ссылка RSS',
       rssFormButton: 'Добавить',
       rssFormExample: 'Пример: https://ru.hexlet.io/lessons.rss',
+      postButton: 'Просмотр',
+      closeButton: 'Закрыть',
+      readButton: 'Читать полностью',
+
     },
     feedBackTexts: {
       invalidURLError: 'Ссылка должна быть валидным URL',
@@ -16,5 +20,7 @@ export default {
       networkError: 'Ошибка сети',
       invalidRSSResource: 'Ресурс не содержит валидный RSS',
     },
+    posts: 'Посты',
+    feeds: 'Фиды',
   },
 };
