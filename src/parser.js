@@ -1,4 +1,4 @@
-const parseData = (data, i18n) => {
+const parseData = (data) => {
   const feeds = [];
   const posts = [];
   const parser = new DOMParser();
@@ -7,7 +7,9 @@ const parseData = (data, i18n) => {
   const parsererrors = doc.querySelector('parsererror');
 
   if (parsererrors !== null) {
-    throw new Error(i18n.t('feedBackTexts.invalidRSSResource'));
+    const error = new Error();
+    error.name = 'ParserError';
+    throw error;
   }
 
   const feedTitle = doc.querySelector('title').textContent;
@@ -18,7 +20,8 @@ const parseData = (data, i18n) => {
   Array.from(items).forEach((item) => {
     const postTitle = item.querySelector('title').textContent;
     const postLink = item.querySelector('link').textContent;
-    posts.push({ title: postTitle, link: postLink });
+    const postDescription = item.querySelector('description').textContent;
+    posts.push({ title: postTitle, link: postLink, description: postDescription });
   });
 
   return { feeds, posts };
