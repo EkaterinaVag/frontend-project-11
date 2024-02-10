@@ -1,6 +1,7 @@
 import i18next from 'i18next';
 import * as yup from 'yup';
 import axios from 'axios';
+import { uniqueId } from 'lodash';
 import resources from './locales/index.js';
 import watch from './view.js';
 import parseData from './parser.js';
@@ -20,8 +21,7 @@ export default async () => {
 
   const state = {
     url: '',
-    errors: { message: '' },
-    networkErrors: { message: '' },
+    errors: '',
     isValid: false,
     urlUniqueLinks: [],
     posts: [],
@@ -57,27 +57,49 @@ export default async () => {
     validate(watchedState.url, watchedState.urlUniqueLinks)
       .then(() => axios.get(url))
       .then((response) => {
-        // if (response.statusText !== 'OK') {
-        //   throw new Error('feedBackTexts.networkError');
-        // }
-        if (response.status < 200 && response.status > 300) {
-          throw new Error('feedBackTexts.networkError');
-        }
         const responseData = response.data.contents;
-        const { feeds, posts } = parseData(responseData, i18n);
-        watchedState.feeds.push(feeds);
-        watchedState.posts.push(posts);
+        const { feeds, posts } = parseData(responseData);
+        console.log(posts);
+        const feedsWithId = feeds.map((feed) => ({ ...feed, id: uniqueId() }));
+        const postsWithId = posts.map((post) => ({ ...post, id: uniqueId() }));
+        watchedState.feeds = feedsWithId;
+        watchedState.posts = postsWithId;
         watchedState.isValid = true;
         watchedState.urlUniqueLinks.push(value);
-        watchedState.errors.message = '';
-        watchedState.networkErrors.message = '';
+        watchedState.errors = '';
       })
       .catch((error) => {
         watchedState.isValid = false;
-        if (error.response) {
-          watchedState.networkErrors.message = 'errrrror!';
+        switch (error.name) {
+          case 'AxiosError':
+            watchedState.errors = 'feedBackTexts.networkError';
+            break;
+          case 'ParserError':
+            watchedState.errors = 'feedBackTexts.invalidRSSResource';
+            break;
+          default:
+            watchedState.errors = error.message;
+            break;
         }
-        watchedState.errors.message = error.message;
       });
   });
+
+  // const checkAndUpdatePosts = () => {
+  //   if (watchedState.urlUniqueLinks) {
+  //     watchedState.urlUniqueLinks.forEach(async (url) => {
+  //       const response = await axios.get(url);
+  //       const responseData = response.data.contents;
+  //       const { posts } = parseData(responseData);
+  //       const newPosts = [];
+  //       posts.forEach((post) => {
+  //         if (!watchedState.posts.includes(post)) {
+  //           newPosts.push({ ...post, id: uniqueId() });
+  //         }
+  //       });
+  //       watchedState.posts.push(...newPosts);
+  //     });
+  //   }
+  // };
+
+  // setTimeout(checkAndUpdatePosts, 5000);
 };
