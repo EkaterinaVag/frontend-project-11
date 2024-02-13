@@ -47,12 +47,14 @@ export default (i18n, state) => {
       const generalDiv = document.createElement('div');
       generalDiv.classList.add('row', 'my-3', 'align-items-center');
       const divForPost = document.createElement('div');
-      divForPost.classList.add('fs-6', 'fw-bold', 'col-8');
+      divForPost.classList.add('fs-6', 'col-8');
 
       const post = document.createElement('a');
       post.textContent = title;
       post.setAttribute('href', link);
-      post.classList.add('link-primary');
+      post.setAttribute('id', id);
+      post.setAttribute('target', '_blank');
+      post.classList.add('link-primary', 'fw-bold');
       divForPost.append(post);
 
       const divForButton = document.createElement('div');
@@ -60,68 +62,33 @@ export default (i18n, state) => {
       const button = document.createElement('button');
       button.setAttribute('type', 'button');
       button.setAttribute('class', 'btn btn-outline-primary btn-sm');
-      button.setAttribute('data-bs-toggle', 'modal');
-      button.setAttribute('data-bs-target', `#${id}`);
+      button.dataset.bsToggle = 'modal';
+      button.dataset.bsTarget = `#postModal-${id}`;
       button.textContent = i18n.t('interfaceTexts.postButton');
       divForButton.append(button);
 
       generalDiv.append(divForPost, divForButton);
       postsElement.append(generalDiv);
 
-      button.addEventListener('click', () => {
-        const divModal = document.createElement('div');
-        divModal.setAttribute('class', 'modal fade');
-        divModal.setAttribute('id', id);
-        divModal.setAttribute('tabindex', '-1');
-        divModal.setAttribute('aria-labelledby', 'postModalLabel');
-        divModal.setAttribute('aria-hidden', 'true');
-
-        const divModalDialog = document.createElement('div');
-        divModalDialog.classList.add('modal-dialog');
-
-        const divModalContent = document.createElement('div');
-        divModalContent.classList.add('modal-content');
-
-        const divModalHeader = document.createElement('div');
-        divModalHeader.classList.add('modal-header');
-        const header = document.createElement('h1');
-        header.setAttribute('class', 'modal-title fs-5');
-        header.setAttribute('id', 'postModalLabel');
-        header.textContent = title;
-        const closeButton = document.createElement('button');
-        closeButton.setAttribute('class', 'btn-close');
-        closeButton.setAttribute('type', 'button');
-        closeButton.setAttribute('data-bs-dismiss', 'modal');
-        closeButton.setAttribute('aria-label', 'close');
-        divModalHeader.append(header, closeButton);
-
-        const divModalBody = document.createElement('div');
-        divModalBody.classList.add('modal-body');
-        const contentBody = document.createElement('p');
-        contentBody.textContent = description;
-        divModalBody.append(contentBody);
-
-        const divModalFooter = document.createElement('div');
-        divModalFooter.classList.add('modal-footer');
-        const closeContentButton = document.createElement('button');
-        closeContentButton.setAttribute('type', 'button');
-        closeContentButton.setAttribute('class', 'btn btn-secondary');
-        closeContentButton.setAttribute('data-bs-dismiss', 'modal');
-        closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
-        const readMoreButton = document.createElement('button');
-        readMoreButton.setAttribute('type', 'button');
-        readMoreButton.setAttribute('class', 'btn btn-primary');
-        readMoreButton.textContent = i18n.t('interfaceTexts.readButton');
-        divModalFooter.append(closeButton, readMoreButton);
-
-        divModal.append(
-          divModalDialog,
-          divModalContent,
-          divModalHeader,
-          divModalBody,
-          divModalFooter,
-        );
-      });
+      const divModal = document.createElement('div');
+      divModal.classList.add('modal', 'fade');
+      divModal.setAttribute('id', `postModal-${id}`);
+      divModal.innerHTML = `<div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title">${title}</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                      ${description}
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${i18n.t('interfaceTexts.closeButton')}</button>
+                      <a href=${link} target="_blank" type="button" class="btn btn-primary">${i18n.t('interfaceTexts.readButton')}</a>
+                  </div>
+              </div>
+          </div>`;
+      document.body.appendChild(divModal);
     });
 
     const existingTitle = postsElement.querySelector('h4');
@@ -156,6 +123,13 @@ export default (i18n, state) => {
     }
   };
 
+  const renderTouchedPosts = (watchedState) => {
+    watchedState.uiState.touchedPosts.forEach((post) => {
+      post.classList.remove('fw-bold', 'link-primary');
+      post.classList.add('fw-normal', 'link-secondary');
+    });
+  };
+
   const watchedState = onChange(state, (path) => {
     // eslint-disable-next-line default-case
     switch (path) {
@@ -170,6 +144,9 @@ export default (i18n, state) => {
         break;
       case 'feeds':
         renderFeeds(watchedState);
+        break;
+      case 'uiState.touchedPosts':
+        renderTouchedPosts(watchedState);
         break;
     }
   });
