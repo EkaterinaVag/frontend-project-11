@@ -26,6 +26,9 @@ export default async () => {
     urlUniqueLinks: [],
     posts: [],
     feeds: [],
+    uiState: {
+      touchedPosts: [],
+    },
   };
 
   const watchedState = watch(i18n, state);
@@ -90,16 +93,21 @@ export default async () => {
   //       const response = await axios.get(url);
   //       const responseData = response.data.contents;
   //       const { posts } = parseData(responseData);
-  //       const newPosts = [];
   //       posts.forEach((post) => {
-  //         if (!watchedState.posts.includes(post)) {
-  //           newPosts.push({ ...post, id: uniqueId() });
+  //         const isDuplicate = watchedState.posts
+  //           .some((loadedPost) => loadedPost.title === post.title);
+  //         if (!isDuplicate) {
+  //           watchedState.posts.push({ ...post, id: uniqueId() });
   //         }
   //       });
-  //       watchedState.posts.push(...newPosts);
   //     });
   //   }
   // };
-
   // setTimeout(checkAndUpdatePosts, 5000);
+
+  const postsElement = document.querySelectorAll('.posts');
+  postsElement.addEventListener('click', (e) => {
+    const post = e.currentTarget.querySelector('a');
+    watchedState.uiState.touchedPosts.push(post);
+  });
 };
