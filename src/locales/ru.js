@@ -7,7 +7,7 @@ export default {
       rssAggregatorDescription: 'Начните читать RSS сегодня! Это легко, это красиво.',
       rssFormPlaceholder: 'Ссылка RSS',
       rssFormButton: 'Добавить',
-      rssFormExample: 'Пример: https://ru.hexlet.io/lessons.rss',
+      rssFormExample: 'Пример: https://lorem-rss.hexlet.app/feed',
       postButton: 'Просмотр',
       closeButton: 'Закрыть',
       readButton: 'Читать полностью',
