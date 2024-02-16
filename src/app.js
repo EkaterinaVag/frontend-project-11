@@ -20,7 +20,6 @@ export default async () => {
   });
 
   const state = {
-    url: '',
     errors: '',
     isValid: false,
     urlUniqueLinks: [],
@@ -53,20 +52,19 @@ export default async () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const { value } = input;
-    watchedState.url = value;
     const allOriginsProxyUrl = 'https://allorigins.hexlet.app/get?url=';
-    const url = `${allOriginsProxyUrl}${watchedState.url}`;
+    const url = new URL(`${allOriginsProxyUrl}${value}`);
 
-    validate(watchedState.url, watchedState.urlUniqueLinks)
+    validate(value, watchedState.urlUniqueLinks)
       .then(() => axios.get(url))
       .then((response) => {
         const responseData = response.data.contents;
         const { feeds, posts } = parseData(responseData);
-        console.log(posts);
         const feedsWithId = feeds.map((feed) => ({ ...feed, id: uniqueId() }));
         const postsWithId = posts.map((post) => ({ ...post, id: uniqueId() }));
         watchedState.feeds = feedsWithId;
         watchedState.posts = postsWithId;
+        console.log(watchedState.posts);
         watchedState.isValid = true;
         watchedState.urlUniqueLinks.push(value);
         watchedState.errors = '';
@@ -89,25 +87,37 @@ export default async () => {
 
   // const checkAndUpdatePosts = () => {
   //   if (watchedState.urlUniqueLinks) {
-  //     watchedState.urlUniqueLinks.forEach(async (url) => {
-  //       const response = await axios.get(url);
-  //       const responseData = response.data.contents;
-  //       const { posts } = parseData(responseData);
-  //       posts.forEach((post) => {
-  //         const isDuplicate = watchedState.posts
-  //           .some((loadedPost) => loadedPost.title === post.title);
-  //         if (!isDuplicate) {
-  //           watchedState.posts.push({ ...post, id: uniqueId() });
-  //         }
-  //       });
+  //     const postPromises = watchedState.urlUniqueLinks.map((url) => axios.get(`https://allorigins.hexlet.app/get?url=${url}`)
+  //       .then((response) => {
+  //         const responseData = response.data.contents;
+  //         const { posts } = parseData(responseData);
+
+  //         posts.forEach((post) => {
+  //           const isDuplicate = watchedState.posts
+  //             .some((loadedPost) => loadedPost.title === post.title);
+  //           if (!isDuplicate) {
+  //             watchedState.posts.push({ ...post, id: uniqueId() });
+  //             console.log(watchedState.posts);
+  //           }
+  //         });
+  //       })
+  //       .catch(() => {
+  //         watchedState.errors = 'feedBackTexts.networkError';
+  //       }));
+
+  //     Promise.all(postPromises).finally(() => {
+  //       setTimeout(checkAndUpdatePosts, 5000);
   //     });
   //   }
   // };
-  // setTimeout(checkAndUpdatePosts, 5000);
 
-  const postsElement = document.querySelectorAll('.posts');
-  postsElement.addEventListener('click', (e) => {
-    const post = e.currentTarget.querySelector('a');
-    watchedState.uiState.touchedPosts.push(post);
-  });
+  // checkAndUpdatePosts();
+
+  // const postsElement = document.querySelectorAll('.posts');
+  // postsElement.addEventListener('click', (e) => {
+  //   if (e.target.tagName === 'A') {
+  //     const post = e.target;
+  //     watchedState.uiState.touchedPosts.push(post);
+  //   }
+  // });
 };
