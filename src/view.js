@@ -46,6 +46,7 @@ export default (i18n, state) => {
     }) => {
       const generalDiv = document.createElement('div');
       generalDiv.classList.add('row', 'my-3', 'align-items-center');
+
       const divForPost = document.createElement('div');
       divForPost.classList.add('fs-6', 'col-8');
 
@@ -59,36 +60,33 @@ export default (i18n, state) => {
 
       const divForButton = document.createElement('div');
       divForButton.setAttribute('class', 'd-grid gap-2 d-md-flex justify-content-md-end col-3');
+
       const button = document.createElement('button');
       button.setAttribute('type', 'button');
       button.setAttribute('class', 'btn btn-outline-primary btn-sm');
       button.dataset.bsToggle = 'modal';
-      button.dataset.bsTarget = `#postModal-${id}`;
+      button.dataset.bsTarget = `#modal-${id}`;
       button.textContent = i18n.t('interfaceTexts.postButton');
       divForButton.append(button);
 
       generalDiv.append(divForPost, divForButton);
       postsElement.append(generalDiv);
 
-      const divModal = document.createElement('div');
-      divModal.classList.add('modal', 'fade');
-      divModal.setAttribute('id', `postModal-${id}`);
-      divModal.innerHTML = `<div class="modal-dialog">
-              <div class="modal-content">
-                  <div class="modal-header">
-                      <h5 class="modal-title">${title}</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                      ${description}
-                  </div>
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${i18n.t('interfaceTexts.closeButton')}</button>
-                      <a href=${link} target="_blank" type="button" class="btn btn-primary">${i18n.t('interfaceTexts.readButton')}</a>
-                  </div>
-              </div>
-          </div>`;
-      document.body.appendChild(divModal);
+      const divModal = document.querySelector('.modal.fade');
+      divModal.removeAttribute('id');
+      divModal.setAttribute('id', `modal-${id}`);
+
+      const header = divModal.querySelector('.modal-title');
+      header.textContent = title;
+
+      const contentBody = divModal.querySelector('.modal-body');
+      contentBody.textContent = description;
+
+      const closeContentButton = divModal.querySelector('.btn.btn-primary.full-article');
+      closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
+
+      const readMoreButton = divModal.querySelector('.btn.btn-secondary');
+      readMoreButton.textContent = i18n.t('interfaceTexts.readButton');
     });
 
     const existingTitle = postsElement.querySelector('h4');
