@@ -49,14 +49,17 @@ export default async () => {
     return schema.validate({ url });
   };
 
+  const createUrl = (link) => {
+    const allOriginsProxyUrl = 'https://allorigins.hexlet.app/get?url=';
+    return new URL(`${allOriginsProxyUrl}${link}`);
+  };
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const { value } = input;
-    const allOriginsProxyUrl = 'https://allorigins.hexlet.app/get?url=';
-    const url = new URL(`${allOriginsProxyUrl}${value}`);
 
     validate(value, watchedState.urlUniqueLinks)
-      .then(() => axios.get(url))
+      .then(() => axios.get(createUrl(value)))
       .then((response) => {
         const responseData = response.data.contents;
         const { feeds, posts } = parseData(responseData);
@@ -64,7 +67,6 @@ export default async () => {
         const postsWithId = posts.map((post) => ({ ...post, id: uniqueId() }));
         watchedState.feeds = feedsWithId;
         watchedState.posts = postsWithId;
-        console.log(watchedState.posts);
         watchedState.isValid = true;
         watchedState.urlUniqueLinks.push(value);
         watchedState.errors = '';
@@ -85,39 +87,44 @@ export default async () => {
       });
   });
 
-  // const checkAndUpdatePosts = () => {
-  //   if (watchedState.urlUniqueLinks) {
-  //     const postPromises = watchedState.urlUniqueLinks.map((url) => axios.get(`https://allorigins.hexlet.app/get?url=${url}`)
-  //       .then((response) => {
-  //         const responseData = response.data.contents;
-  //         const { posts } = parseData(responseData);
+  const checkAndUpdatePosts = () => {
+    if (watchedState.urlUniqueLinks) {
+      const postPromises = watchedState.urlUniqueLinks.map((link) => axios.get(createUrl(link))
+        .then((response) => {
+          const responseData = response.data.contents;
+          const { posts } = parseData(responseData);
 
-  //         posts.forEach((post) => {
-  //           const isDuplicate = watchedState.posts
-  //             .some((loadedPost) => loadedPost.title === post.title);
-  //           if (!isDuplicate) {
-  //             watchedState.posts.push({ ...post, id: uniqueId() });
-  //             console.log(watchedState.posts);
-  //           }
-  //         });
-  //       })
-  //       .catch(() => {
-  //         watchedState.errors = 'feedBackTexts.networkError';
-  //       }));
+          posts.forEach((post) => {
+            const isDuplicate = watchedState.posts
+              .some((loadedPost) => loadedPost.title === post.title);
+            if (!isDuplicate) {
+              watchedState.posts.push({ ...post, id: uniqueId() });
+              console.log(watchedState.posts);
+            }
+          });
+        })
+        .catch(() => {
+          watchedState.errors = 'feedBackTexts.networkError';
+        }));
 
-  //     Promise.all(postPromises).finally(() => {
-  //       setTimeout(checkAndUpdatePosts, 5000);
-  //     });
-  //   }
-  // };
+      Promise.all(postPromises).finally(() => {
+        setTimeout(checkAndUpdatePosts, 5000);
+      });
+    }
+  };
 
-  // checkAndUpdatePosts();
+  checkAndUpdatePosts();
 
-  // const postsElement = document.querySelectorAll('.posts');
-  // postsElement.addEventListener('click', (e) => {
-  //   if (e.target.tagName === 'A') {
-  //     const post = e.target;
-  //     watchedState.uiState.touchedPosts.push(post);
-  //   }
-  // });
+  const postContainer = document.querySelector('.posts');
+  postContainer.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') {
+      const postId = e.target.id;
+      watchedState.uiState.touchedPosts.push(postId);
+    }
+    if (e.target.tagName === 'BUTTON') {
+      const button = e.target;
+      const post = button.closest('.row').querySelector('a');
+      watchedState.uiState.touchedPosts.push(post.id);
+    }
+  });
 };
