@@ -3,8 +3,6 @@ import onChange from 'on-change';
 export default (i18n, state) => {
   const renderFormTexts = () => {
     const staticTextElements = {
-      readMore: document.querySelector('.full-article'),
-      closeModal: document.querySelector('button[data-bs-dismiss="modal"]'),
       rssAggregatorTitle: document.querySelector('h1.display-3'),
       rssAggregatorDescription: document.querySelector('p.lead'),
       rssFormPlaceholder: document.querySelector('label[for="url-input"]'),
@@ -65,28 +63,29 @@ export default (i18n, state) => {
       button.setAttribute('type', 'button');
       button.setAttribute('class', 'btn btn-outline-primary btn-sm');
       button.dataset.bsToggle = 'modal';
-      button.dataset.bsTarget = `#modal-${id}`;
+      button.dataset.bsTarget = '#modal';
       button.textContent = i18n.t('interfaceTexts.postButton');
       divForButton.append(button);
 
+      button.addEventListener('click', () => {
+        const divModal = document.querySelector('.modal');
+
+        const header = divModal.querySelector('.modal-title');
+        header.textContent = title;
+
+        const contentBody = divModal.querySelector('.modal-body');
+        contentBody.textContent = description;
+
+        const closeContentButton = divModal.querySelector('.btn-secondary');
+        closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
+
+        const readMoreButton = divModal.querySelector('.full-article');
+        readMoreButton.textContent = i18n.t('interfaceTexts.readButton');
+        readMoreButton.href = link;
+      });
+
       generalDiv.append(divForPost, divForButton);
       postsElement.append(generalDiv);
-
-      const divModal = document.querySelector('.modal.fade');
-      divModal.removeAttribute('id');
-      divModal.setAttribute('id', `modal-${id}`);
-
-      const header = divModal.querySelector('.modal-title');
-      header.textContent = title;
-
-      const contentBody = divModal.querySelector('.modal-body');
-      contentBody.textContent = description;
-
-      const closeContentButton = divModal.querySelector('.btn.btn-primary.full-article');
-      closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
-
-      const readMoreButton = divModal.querySelector('.btn.btn-secondary');
-      readMoreButton.textContent = i18n.t('interfaceTexts.readButton');
     });
 
     const existingTitle = postsElement.querySelector('h4');
@@ -122,9 +121,13 @@ export default (i18n, state) => {
   };
 
   const renderTouchedPosts = (watchedState) => {
-    watchedState.uiState.touchedPosts.forEach((post) => {
-      post.classList.remove('fw-bold', 'link-primary');
-      post.classList.add('fw-normal', 'link-secondary');
+    watchedState.uiState.touchedPosts.forEach((postId) => {
+      const post = document.getElementById(postId);
+
+      if (!post.classList.contains('fw-normal')) {
+        post.classList.remove('fw-bold', 'link-primary');
+        post.classList.add('fw-normal', 'link-secondary');
+      }
     });
   };
 
