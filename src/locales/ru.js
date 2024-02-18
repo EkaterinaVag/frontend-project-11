@@ -1,8 +1,6 @@
 export default {
   translation: {
     interfaceTexts: {
-      readMore: 'Читать полностью',
-      closeModal: 'Закрыть',
       rssAggregatorTitle: 'RSS агрегатор',
       rssAggregatorDescription: 'Начните читать RSS сегодня! Это легко, это красиво.',
       rssFormPlaceholder: 'Ссылка RSS',
