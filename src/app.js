@@ -1,15 +1,14 @@
 import i18next from 'i18next';
-import * as yup from 'yup';
 import axios from 'axios';
 import { uniqueId } from 'lodash';
 import resources from './locales/index.js';
 import watch from './view.js';
-import parseData from './parser.js';
+import parseData from './utils/parser.js';
+import validate from './utils/validate.js';
+import createURL from './utils/createURL.js';
+import checkAndUpdatePosts from './utils/checkAndUpdatePosts.js';
 
 export default async () => {
-  const form = document.querySelector('form');
-  const input = form.querySelector('input');
-
   const defaultLang = 'ru';
 
   const i18n = i18next.createInstance();
@@ -32,34 +31,14 @@ export default async () => {
 
   const watchedState = watch(i18n, state);
 
-  yup.setLocale({
-    mixed: {
-      url: () => ({ key: 'feedBackTexts.invalidURLError' }),
-      notOneOf: () => ({ key: 'feedBackTexts.rssExistsError' }),
-    },
-  });
-
-  const validate = (url, urlUniqueLinks) => {
-    const schema = yup.object().shape({
-      url: yup.string()
-        .url('feedBackTexts.invalidURLError')
-        .notOneOf(urlUniqueLinks, 'feedBackTexts.rssExistsError')
-        .required(),
-    });
-    return schema.validate({ url });
-  };
-
-  const createUrl = (link) => {
-    const allOriginsProxyUrl = 'https://allorigins.hexlet.app/get?url=';
-    return new URL(`${allOriginsProxyUrl}${link}`);
-  };
-
+  const form = document.querySelector('form');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const { value } = input;
+    const formData = new FormData(form);
+    const url = formData.get('url');
 
-    validate(value, watchedState.urlUniqueLinks)
-      .then(() => axios.get(createUrl(value)))
+    validate(url, watchedState.urlUniqueLinks)
+      .then(() => axios.get(createURL(url)))
       .then((response) => {
         const responseData = response.data.contents;
         const { feeds, posts } = parseData(responseData);
@@ -68,8 +47,9 @@ export default async () => {
         watchedState.feeds = feedsWithId;
         watchedState.posts = postsWithId;
         watchedState.isValid = true;
-        watchedState.urlUniqueLinks.push(value);
+        watchedState.urlUniqueLinks.push(url);
         watchedState.errors = '';
+        checkAndUpdatePosts(watchedState);
       })
       .catch((error) => {
         watchedState.isValid = false;
@@ -86,34 +66,6 @@ export default async () => {
         }
       });
   });
-
-  const checkAndUpdatePosts = () => {
-    if (watchedState.urlUniqueLinks) {
-      const postPromises = watchedState.urlUniqueLinks.map((link) => axios.get(createUrl(link))
-        .then((response) => {
-          const responseData = response.data.contents;
-          const { posts } = parseData(responseData);
-
-          posts.forEach((post) => {
-            const isDuplicate = watchedState.posts
-              .some((loadedPost) => loadedPost.title === post.title);
-            if (!isDuplicate) {
-              watchedState.posts.push({ ...post, id: uniqueId() });
-              console.log(watchedState.posts);
-            }
-          });
-        })
-        .catch(() => {
-          watchedState.errors = 'feedBackTexts.networkError';
-        }));
-
-      Promise.all(postPromises).finally(() => {
-        setTimeout(checkAndUpdatePosts, 5000);
-      });
-    }
-  };
-
-  checkAndUpdatePosts();
 
   const postContainer = document.querySelector('.posts');
   postContainer.addEventListener('click', (e) => {
