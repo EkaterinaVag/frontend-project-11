@@ -23,7 +23,7 @@ const checkAndUpdatePosts = (watchedState) => {
       }));
 
     Promise.all(postPromises).finally(() => {
-      setTimeout(checkAndUpdatePosts(watchedState), 5000);
+      setTimeout(() => checkAndUpdatePosts(watchedState), 5000);
     });
   }
 };
