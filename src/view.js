@@ -1,4 +1,5 @@
 import onChange from 'on-change';
+import createTitle from './utils/createTitle.js';
 
 export default (i18n, state) => {
   const renderFormTexts = () => {
@@ -37,7 +38,8 @@ export default (i18n, state) => {
   };
 
   const renderPosts = (watchedState) => {
-    const postsElement = document.querySelector('.posts');
+    const postContainer = document.querySelector('.posts');
+    createTitle(postContainer, i18n.t('posts'));
 
     watchedState.posts.forEach(({
       title, link, description, id,
@@ -59,22 +61,22 @@ export default (i18n, state) => {
       const divForButton = document.createElement('div');
       divForButton.setAttribute('class', 'd-grid gap-2 d-md-flex justify-content-md-end col-3');
 
-      const button = document.createElement('button');
-      button.setAttribute('type', 'button');
-      button.setAttribute('class', 'btn btn-outline-primary btn-sm');
-      button.dataset.bsToggle = 'modal';
-      button.dataset.bsTarget = '#modal';
-      button.textContent = i18n.t('interfaceTexts.postButton');
-      divForButton.append(button);
+      const previewButton = document.createElement('button');
+      previewButton.setAttribute('type', 'button');
+      previewButton.setAttribute('class', 'btn btn-outline-primary btn-sm');
+      previewButton.dataset.bsToggle = 'modal';
+      previewButton.dataset.bsTarget = '#modal';
+      previewButton.textContent = i18n.t('interfaceTexts.previewButton');
+      divForButton.append(previewButton);
 
-      button.addEventListener('click', () => {
+      previewButton.addEventListener('click', () => {
         const divModal = document.querySelector('.modal');
 
-        const header = divModal.querySelector('.modal-title');
-        header.textContent = title;
+        const modalTitle = divModal.querySelector('.modal-title');
+        modalTitle.textContent = title;
 
-        const contentBody = divModal.querySelector('.modal-body');
-        contentBody.textContent = description;
+        const modalBody = divModal.querySelector('.modal-body');
+        modalBody.textContent = description;
 
         const closeContentButton = divModal.querySelector('.btn-secondary');
         closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
@@ -85,20 +87,13 @@ export default (i18n, state) => {
       });
 
       generalDiv.append(divForPost, divForButton);
-      postsElement.append(generalDiv);
+      postContainer.append(generalDiv);
     });
-
-    const existingTitle = postsElement.querySelector('h4');
-    if (!existingTitle) {
-      const postsElementTitle = document.createElement('h4');
-      postsElementTitle.classList.add('lh-lg');
-      postsElementTitle.textContent = i18n.t('posts');
-      postsElement.prepend(postsElementTitle);
-    }
   };
 
   const renderFeeds = (watchedState) => {
-    const feedsElement = document.querySelector('.feeds');
+    const feedContainer = document.querySelector('.feeds');
+    createTitle(feedContainer, i18n.t('feeds'));
 
     watchedState.feeds.forEach(({ title, description }) => {
       const divForFeed = document.createElement('div');
@@ -108,16 +103,8 @@ export default (i18n, state) => {
       feedDescription.classList.add('text-secondary');
       feedDescription.textContent = description;
       divForFeed.append(feedTitle, feedDescription);
-      feedsElement.append(divForFeed);
+      feedContainer.append(divForFeed);
     });
-
-    const existingTitle = feedsElement.querySelector('h4');
-    if (!existingTitle) {
-      const feedsElementTitle = document.createElement('h4');
-      feedsElementTitle.classList.add('lh-lg');
-      feedsElementTitle.textContent = i18n.t('feeds');
-      feedsElement.prepend(feedsElementTitle);
-    }
   };
 
   const renderTouchedPosts = (watchedState) => {
