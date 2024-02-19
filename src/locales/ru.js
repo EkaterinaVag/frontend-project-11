@@ -6,7 +6,7 @@ export default {
       rssFormPlaceholder: 'Ссылка RSS',
       rssFormButton: 'Добавить',
       rssFormExample: 'Пример: https://lorem-rss.hexlet.app/feed',
-      postButton: 'Просмотр',
+      previewButton: 'Просмотр',
       closeButton: 'Закрыть',
       readButton: 'Читать полностью',
 
