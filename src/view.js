@@ -55,7 +55,7 @@ export default (i18n, state) => {
       post.setAttribute('href', link);
       post.setAttribute('id', id);
       post.setAttribute('target', '_blank');
-      post.classList.add('link-primary', 'fw-bold');
+      post.classList.add('fw-bold');
       divForPost.append(post);
 
       const divForButton = document.createElement('div');
@@ -112,14 +112,13 @@ export default (i18n, state) => {
       const post = document.getElementById(postId);
 
       if (!post.classList.contains('fw-normal')) {
-        post.classList.remove('fw-bold', 'link-primary');
+        post.classList.remove('fw-bold');
         post.classList.add('fw-normal', 'link-secondary');
       }
     });
   };
 
   const watchedState = onChange(state, (path) => {
-    // eslint-disable-next-line default-case
     switch (path) {
       case 'errors':
         renderErrors(watchedState);
@@ -136,6 +135,10 @@ export default (i18n, state) => {
       case 'uiState.touchedPosts':
         renderTouchedPosts(watchedState);
         break;
+      case 'urlUniqueLinks':
+        break;
+      default:
+        throw new Error(`Unknown path: ${path}!`);
     }
   });
 
