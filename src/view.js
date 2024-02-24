@@ -42,7 +42,7 @@ export default (i18n, state) => {
     createTitle(postContainer, i18n.t('posts'));
 
     watchedState.posts.forEach(({
-      title, link, description, id,
+      title, link, id,
     }) => {
       const generalDiv = document.createElement('div');
       generalDiv.classList.add('row', 'my-3', 'align-items-center');
@@ -66,29 +66,35 @@ export default (i18n, state) => {
       previewButton.setAttribute('class', 'btn btn-outline-primary btn-sm');
       previewButton.dataset.bsToggle = 'modal';
       previewButton.dataset.bsTarget = '#modal';
+      previewButton.dataset.postId = id;
       previewButton.textContent = i18n.t('interfaceTexts.previewButton');
       divForButton.append(previewButton);
-
-      previewButton.addEventListener('click', () => {
-        const divModal = document.querySelector('.modal');
-
-        const modalTitle = divModal.querySelector('.modal-title');
-        modalTitle.textContent = title;
-
-        const modalBody = divModal.querySelector('.modal-body');
-        modalBody.textContent = description;
-
-        const closeContentButton = divModal.querySelector('.btn-secondary');
-        closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
-
-        const readMoreButton = divModal.querySelector('.full-article');
-        readMoreButton.textContent = i18n.t('interfaceTexts.readButton');
-        readMoreButton.href = link;
-      });
 
       generalDiv.append(divForPost, divForButton);
       postContainer.append(generalDiv);
     });
+  };
+
+  const renderModal = (watchedState) => {
+    const activePost = watchedState.posts
+      .find((post) => post.id === watchedState.uiState.activePostId);
+
+    const { title, link, description } = activePost;
+
+    const divModal = document.querySelector('.modal');
+
+    const modalTitle = divModal.querySelector('.modal-title');
+    modalTitle.textContent = title;
+
+    const modalBody = divModal.querySelector('.modal-body');
+    modalBody.textContent = description;
+
+    const closeContentButton = divModal.querySelector('.btn-secondary');
+    closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
+
+    const readMoreButton = divModal.querySelector('.full-article');
+    readMoreButton.textContent = i18n.t('interfaceTexts.readButton');
+    readMoreButton.href = link;
   };
 
   const renderFeeds = (watchedState) => {
@@ -134,6 +140,9 @@ export default (i18n, state) => {
         break;
       case 'uiState.touchedPosts':
         renderTouchedPosts(watchedState);
+        break;
+      case 'uiState.activePostId':
+        renderModal(watchedState);
         break;
       case 'urlUniqueLinks':
         break;
