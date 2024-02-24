@@ -26,6 +26,7 @@ export default async () => {
     feeds: [],
     uiState: {
       touchedPosts: [],
+      activePostId: '',
     },
   };
 
@@ -75,8 +76,9 @@ export default async () => {
     }
     if (e.target.tagName === 'BUTTON') {
       const button = e.target;
-      const post = button.closest('.row').querySelector('a');
-      watchedState.uiState.touchedPosts.push(post.id);
+      const { postId } = button.dataset;
+      watchedState.uiState.touchedPosts.push(postId);
+      watchedState.uiState.activePostId = postId;
     }
   });
 };
