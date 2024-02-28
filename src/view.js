@@ -76,18 +76,25 @@ export default (i18n, state) => {
   };
 
   const renderModal = (watchedState) => {
-    const activePost = watchedState.posts
-      .find((post) => post.id === watchedState.uiState.activePostId);
 
-    const { title, link, description } = activePost;
+    const id = watchedState.uiState.activePostId;
+    const activePost = document.getElementById(id);
+
+    const title = activePost.textContent;
+    const link = activePost.href;
+
+    // const activePost = watchedState.posts
+    //   .find((post) => post.id === watchedState.uiState.activePostId);
+
+    // const { title, link, description } = activePost;
 
     const divModal = document.querySelector('.modal');
 
     const modalTitle = divModal.querySelector('.modal-title');
     modalTitle.textContent = title;
 
-    const modalBody = divModal.querySelector('.modal-body');
-    modalBody.textContent = description;
+    // const modalBody = divModal.querySelector('.modal-body');
+    // modalBody.textContent = description;
 
     const closeContentButton = divModal.querySelector('.btn-secondary');
     closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
