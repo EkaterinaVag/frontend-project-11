@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import axios from 'axios';
+import * as yup from 'yup';
 import { uniqueId } from 'lodash';
 import resources from './locales/index.js';
 import watch from './view.js';
@@ -18,6 +19,33 @@ export default async () => {
     resources,
   });
 
+  yup.setLocale({
+    mixed: {
+      url: () => ({ key: 'feedBackTexts.invalidURLError' }),
+      notOneOf: () => ({ key: 'feedBackTexts.rssExistsError' }),
+    },
+  });
+
+  const elements = {
+    staticTextElements: {
+      rssAggregatorTitle: document.querySelector('h1.display-3'),
+      rssAggregatorDescription: document.querySelector('p.lead'),
+      rssFormPlaceholder: document.querySelector('label[for="url-input"]'),
+      rssFormButton: document.querySelector('button[aria-label="add"]'),
+      rssFormExample: document.querySelector('p.mt-2.mb-0.text-secondary'),
+    },
+    modalElements: {
+      modalTitle: document.querySelector('.modal-title'),
+      modalBody: document.querySelector('.modal-body'),
+      readMoreButton: document.querySelector('.full-article'),
+      modalCloseButton: document.querySelector('.btn-secondary'),
+    },
+    input: document.querySelector('input'),
+    feedbackElement: document.querySelector('.feedback'),
+    postContainer: document.querySelector('.posts'),
+    feedContainer: document.querySelector('.feeds'),
+  };
+
   const state = {
     errors: '',
     isValid: false,
@@ -25,12 +53,12 @@ export default async () => {
     posts: [],
     feeds: [],
     uiState: {
-      touchedPosts: [],
+      touchedPosts: new Set(),
       activePostId: '',
     },
   };
 
-  const watchedState = watch(i18n, state);
+  const watchedState = watch(i18n, state, elements);
 
   const form = document.querySelector('form');
   form.addEventListener('submit', async (e) => {
@@ -50,7 +78,6 @@ export default async () => {
         watchedState.isValid = true;
         watchedState.urlUniqueLinks.push(url);
         watchedState.errors = '';
-        checkAndUpdatePosts(watchedState);
       })
       .catch((error) => {
         watchedState.isValid = false;
@@ -68,16 +95,17 @@ export default async () => {
       });
   });
 
-  const postContainer = document.querySelector('.posts');
-  postContainer.addEventListener('click', (e) => {
+  checkAndUpdatePosts(watchedState);
+
+  elements.postContainer.addEventListener('click', (e) => {
     if (e.target.tagName === 'A') {
       const postId = e.target.id;
-      watchedState.uiState.touchedPosts.push(postId);
+      watchedState.uiState.touchedPosts.add(postId);
     }
     if (e.target.tagName === 'BUTTON') {
       const button = e.target;
       const { postId } = button.dataset;
-      watchedState.uiState.touchedPosts.push(postId);
+      watchedState.uiState.touchedPosts.add(postId);
       watchedState.uiState.activePostId = postId;
     }
   });
