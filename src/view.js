@@ -1,17 +1,18 @@
 import onChange from 'on-change';
-import createTitle from './utils/createTitle.js';
 
-export default (i18n, state) => {
+const createTitle = (container, text) => {
+  const existingTitle = container.querySelector('h4');
+  if (!existingTitle) {
+    const title = document.createElement('h4');
+    title.classList.add('lh-lg');
+    title.textContent = text;
+    container.prepend(title);
+  }
+};
+
+export default (i18n, state, elements) => {
   const renderFormTexts = () => {
-    const staticTextElements = {
-      rssAggregatorTitle: document.querySelector('h1.display-3'),
-      rssAggregatorDescription: document.querySelector('p.lead'),
-      rssFormPlaceholder: document.querySelector('label[for="url-input"]'),
-      rssFormButton: document.querySelector('button[aria-label="add"]'),
-      rssFormExample: document.querySelector('p.mt-2.mb-0.text-secondary'),
-    };
-
-    const arrayOfElements = Object.entries(staticTextElements);
+    const arrayOfElements = Object.entries(elements.staticTextElements);
     arrayOfElements.forEach(([key, value]) => {
       const element = value;
       element.textContent = i18n.t(`interfaceTexts.${key}`);
@@ -19,10 +20,8 @@ export default (i18n, state) => {
   };
 
   const renderErrors = (watchedState) => {
-    const input = document.querySelector('input');
+    const { input, feedbackElement } = elements;
     input.classList.remove('is-invalid');
-
-    const feedbackElement = document.querySelector('.feedback');
     feedbackElement.classList.remove('text-danger', 'text-success');
 
     if (watchedState.isValid) {
@@ -38,7 +37,7 @@ export default (i18n, state) => {
   };
 
   const renderPosts = (watchedState) => {
-    const postContainer = document.querySelector('.posts');
+    const { postContainer } = elements;
     createTitle(postContainer, i18n.t('posts'));
 
     watchedState.posts.forEach(({
@@ -76,36 +75,24 @@ export default (i18n, state) => {
   };
 
   const renderModal = (watchedState) => {
+    const activePost = watchedState.posts
+      .find((post) => post.id === watchedState.uiState.activePostId);
 
-    const id = watchedState.uiState.activePostId;
-    const activePost = document.getElementById(id);
+    const { title, link, description } = activePost;
 
-    const title = activePost.textContent;
-    const link = activePost.href;
+    const {
+      modalTitle, modalBody, readMoreButton, modalCloseButton,
+    } = elements.modalElements;
 
-    // const activePost = watchedState.posts
-    //   .find((post) => post.id === watchedState.uiState.activePostId);
-
-    // const { title, link, description } = activePost;
-
-    const divModal = document.querySelector('.modal');
-
-    const modalTitle = divModal.querySelector('.modal-title');
     modalTitle.textContent = title;
-
-    // const modalBody = divModal.querySelector('.modal-body');
-    // modalBody.textContent = description;
-
-    const closeContentButton = divModal.querySelector('.btn-secondary');
-    closeContentButton.textContent = i18n.t('interfaceTexts.closeButton');
-
-    const readMoreButton = divModal.querySelector('.full-article');
+    modalBody.textContent = description;
     readMoreButton.textContent = i18n.t('interfaceTexts.readButton');
     readMoreButton.href = link;
+    modalCloseButton.textContent = i18n.t('interfaceTexts.closeButton');
   };
 
   const renderFeeds = (watchedState) => {
-    const feedContainer = document.querySelector('.feeds');
+    const { feedContainer } = elements;
     createTitle(feedContainer, i18n.t('feeds'));
 
     watchedState.feeds.forEach(({ title, description }) => {
