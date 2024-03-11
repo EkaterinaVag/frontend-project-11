@@ -1,15 +1,7 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import { fileURLToPath } from 'url';
-import path, { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 export default {
   mode: process.env.NODE_ENV || 'development',
-  entry: {
-    main: path.resolve(__dirname, './src/index.js'),
-  },
   module: {
     rules: [
       {
@@ -39,12 +31,10 @@ export default {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, './public/index.html'),
+      template: 'public/index.html',
     }),
   ],
   output: {
-    path: path.resolve(__dirname, './dist'),
-    filename: '[name].[contenthash].js',
     clean: true,
   },
 };
