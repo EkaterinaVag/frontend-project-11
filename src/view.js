@@ -43,11 +43,8 @@ export default (i18n, state, elements) => {
     watchedState.posts.forEach(({
       title, link, id,
     }) => {
-      const generalDiv = document.createElement('div');
-      generalDiv.classList.add('row', 'my-3', 'align-items-center');
-
       const divForPost = document.createElement('div');
-      divForPost.classList.add('fs-6', 'col-8');
+      divForPost.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center', 'my-3');
 
       const post = document.createElement('a');
       post.textContent = title;
@@ -57,9 +54,6 @@ export default (i18n, state, elements) => {
       post.classList.add('fw-bold');
       divForPost.append(post);
 
-      const divForButton = document.createElement('div');
-      divForButton.setAttribute('class', 'd-grid gap-2 d-md-flex justify-content-md-end col-3');
-
       const previewButton = document.createElement('button');
       previewButton.setAttribute('type', 'button');
       previewButton.setAttribute('class', 'btn btn-outline-primary btn-sm');
@@ -67,10 +61,9 @@ export default (i18n, state, elements) => {
       previewButton.dataset.bsTarget = '#modal';
       previewButton.dataset.postId = id;
       previewButton.textContent = i18n.t('interfaceTexts.previewButton');
-      divForButton.append(previewButton);
+      divForPost.append(previewButton);
 
-      generalDiv.append(divForPost, divForButton);
-      postContainer.append(generalDiv);
+      postContainer.append(divForPost);
     });
   };
 
